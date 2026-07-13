@@ -1,0 +1,39 @@
+--- app/src/main/java/com/example/AppNavigation.kt
++++ app/src/main/java/com/example/AppNavigation.kt
+@@ -114,27 +114,6 @@
+                         )
+                     )
+                     
+-                    NavigationBarItem(
+-                        selected = currentDestination?.hierarchy?.any { it.route == Calendar::class.qualifiedName } == true,
+-                        onClick = {
+-                            navController.navigate(Calendar) {
+-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+-                                launchSingleTop = true
+-                                restoreState = true
+-                            }
+-                        },
+-                        icon = {
+-                            Icon(
+-                                if (currentDestination?.hierarchy?.any { it.route == Calendar::class.qualifiedName } == true) Icons.Filled.DateRange else Icons.Outlined.DateRange,
+-                                contentDescription = "Calendar"
+-                            )
+-                        },
+-                        label = { Text("Calendar") },
+-                        colors = NavigationBarItemDefaults.colors(
+-                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+-                        )
+-                    )
+-                    
+                     NavigationBarItem(
+                         selected = currentDestination?.hierarchy?.any { it.route == Insights::class.qualifiedName } == true,
+                         onClick = {
+@@ -230,7 +209,7 @@
+                 slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(300))
+             }
+         ) {
+-            composable<Dashboard> { DashboardScreen(viewModel) }
++            composable<Dashboard> { DashboardScreen(viewModel, onNavigateToCalendar = { navController.navigate(Calendar) }) }
+             composable<Transactions> { TransactionsScreen(viewModel) }
+             composable<Calendar> { CalendarScreen(viewModel) }
+             composable<Insights> { InsightsScreen(viewModel) }

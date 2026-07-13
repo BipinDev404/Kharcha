@@ -1,0 +1,24 @@
+--- app/src/main/java/com/example/Screens.kt
++++ app/src/main/java/com/example/Screens.kt
+@@ -69,6 +69,12 @@
+     val expenses by viewModel.allExpenses.collectAsStateWithLifecycle()
+     var expenseToEdit by remember { mutableStateOf<Expense?>(null) }
+     
++    val score by viewModel.score.collectAsStateWithLifecycle()
++    val shortInsight by viewModel.shortInsight.collectAsStateWithLifecycle()
++    
++    val monthlyLimit by viewModel.monthlyLimit.collectAsStateWithLifecycle()
++    
++    LaunchedEffect(expenses, monthlyLimit) { viewModel.updateDashboardStats(expenses) }
++    
+     val totalSpent = expenses.filter { it.category != "Lent" && it.category != "Received" && it.category != "Borrowed" }.sumOf { it.amount }
+     val totalLent = expenses.filter { it.category == "Lent" }.sumOf { it.amount }
+     val totalReceived = expenses.filter { it.category == "Received" || it.category == "Borrowed" }.sumOf { it.amount }
+@@ -77,8 +83,6 @@
+     val colorLent = Color(0xFFFFC107) // Yellow
+     val colorReceived = Color(0xFF4CAF50) // Green
+     
+-    val monthlyLimit by viewModel.monthlyLimit.collectAsStateWithLifecycle()
+-    
+     val currentMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH)
+     val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)

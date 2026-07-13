@@ -1,0 +1,52 @@
+--- app/src/main/java/com/example/Screens.kt
++++ app/src/main/java/com/example/Screens.kt
+@@ -447,75 +447,15 @@
+ @OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+ fun AddExpenseScreen(viewModel: MainViewModel, onBack: () -> Unit) {
+-    var selectedTabIndex by remember { mutableStateOf(0) }
+-    val tabs = listOf("AI Entry", "Manual Entry")
+-
+     Column(
+         modifier = Modifier
+             .fillMaxSize()
+             .background(MaterialTheme.colorScheme.background)
+     ) {
+         TopAppBar(
+             title = { Text("Add Expense") },
+             navigationIcon = {
+                 IconButton(onClick = onBack) {
+                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                 }
+             },
+             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+         )
+-        
+-        TabRow(
+-            selectedTabIndex = selectedTabIndex,
+-            containerColor = Color.Transparent,
+-            contentColor = MaterialTheme.colorScheme.primary,
+-            indicator = { tabPositions ->
+-                TabRowDefaults.SecondaryIndicator(
+-                    Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+-                    color = MaterialTheme.colorScheme.primary
+-                )
+-            }
+-        ) {
+-            tabs.forEachIndexed { index, title ->
+-                Tab(
+-                    selected = selectedTabIndex == index,
+-                    onClick = { selectedTabIndex = index },
+-                    text = { Text(title, fontWeight = FontWeight.Bold) }
+-                )
+-            }
+-        }
+-
+-        if (selectedTabIndex == 0) {
+-            AIExpenseEntry(viewModel, onBack)
+-        } else {
+-            ManualExpenseEntry(viewModel, onBack)
+-        }
++        ManualExpenseEntry(viewModel, onBack)
+     }
+ }

@@ -1,0 +1,62 @@
+--- app/src/main/java/com/example/Screens.kt
++++ app/src/main/java/com/example/Screens.kt
+@@ -474,6 +474,7 @@
+     var merchant by remember { mutableStateOf("") }
+     var transactionType by remember { mutableStateOf("Expense") }
+     var category by remember { mutableStateOf("Other") }
++    var notes by remember { mutableStateOf("") }
+     var expanded by remember { mutableStateOf(false) }
+     var dateExpanded by remember { mutableStateOf(false) }
+     var selectedDaysAgo by remember { mutableIntStateOf(0) }
+@@ -604,6 +605,14 @@
+             }
+         }
+         
++        Spacer(modifier = Modifier.height(16.dp))
++        OutlinedTextField(
++            value = notes,
++            onValueChange = { notes = it },
++            label = { Text("Notes (Optional)") },
++            modifier = Modifier.fillMaxWidth(),
++            shape = RoundedCornerShape(16.dp)
++        )
+         Spacer(modifier = Modifier.weight(1f))
+         
+         AnimatedButton(
+@@ -616,7 +625,7 @@
+                     category = category,
+                     paymentMethod = "Manual",
+                     date = cal.timeInMillis,
+-                    notes = "Added manually"
++                    notes = notes
+                 )
+                 viewModel.addManualExpense(newExpense)
+                 onBack()
+@@ -870,6 +879,7 @@
+     var amount by remember { mutableStateOf(expense.amount.toString()) }
+     var merchant by remember { mutableStateOf(expense.merchant) }
+     var category by remember { mutableStateOf(expense.category) }
++    var notes by remember { mutableStateOf(expense.notes ?: "") }
+ 
+     AlertDialog(
+         onDismissRequest = onDismiss,
+@@ -893,12 +903,17 @@
+                     onValueChange = { category = it },
+                     label = { Text("Category") }
+                 )
++                Spacer(modifier = Modifier.height(8.dp))
++                OutlinedTextField(
++                    value = notes,
++                    onValueChange = { notes = it },
++                    label = { Text("Notes (Optional)") }
++                )
+             }
+         },
+         confirmButton = {
+             TextButton(onClick = {
+                 val newAmount = amount.toDoubleOrNull() ?: expense.amount
+-                onConfirm(expense.copy(amount = newAmount, merchant = merchant, category = category))
++                onConfirm(expense.copy(amount = newAmount, merchant = merchant, category = category, notes = notes))
+             }) {
+                 Text("Save")
+             }

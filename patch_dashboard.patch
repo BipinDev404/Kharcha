@@ -1,0 +1,45 @@
+--- app/src/main/java/com/example/Screens.kt
++++ app/src/main/java/com/example/Screens.kt
+@@ -64,7 +64,7 @@
+ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+ 
+ @Composable
+-fun DashboardScreen(viewModel: MainViewModel) {
++fun DashboardScreen(viewModel: MainViewModel, onNavigateToCalendar: () -> Unit = {}) {
+     val expenses by viewModel.allExpenses.collectAsStateWithLifecycle()
+     var expenseToEdit by remember { mutableStateOf<Expense?>(null) }
+     
+@@ -156,15 +156,22 @@
+                 Spacer(modifier = Modifier.height(4.dp))
+                 Text("Dashboard", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, letterSpacing = (-1).sp)
+             }
+-            Box(
+-                modifier = Modifier
+-                    .size(40.dp)
+-                    .clip(CircleShape)
+-                    .background(com.example.ui.theme.GradientStart)
+-                    .background(Color.White.copy(alpha = 0.1f)),
+-                contentAlignment = Alignment.Center
+-            ) {
+-                Text("AD", color = Color.White, fontWeight = FontWeight.Bold)
++            Row(verticalAlignment = Alignment.CenterVertically) {
++                IconButton(onClick = onNavigateToCalendar) {
++                    Icon(
++                        androidx.compose.material.icons.Icons.Filled.DateRange,
++                        contentDescription = "Calendar"
++                    )
++                }
++                Spacer(modifier = Modifier.width(8.dp))
++                Box(
++                    modifier = Modifier
++                        .size(40.dp)
++                        .clip(CircleShape)
++                        .background(com.example.ui.theme.GradientStart)
++                        .background(Color.White.copy(alpha = 0.1f)),
++                    contentAlignment = Alignment.Center
++                ) {
++                    Text("AD", color = Color.White, fontWeight = FontWeight.Bold)
++                }
+             }
+         }
+         
