@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import android.content.Context
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: ExpenseRepository
@@ -104,27 +105,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleDarkMode(enabled: Boolean) {
         _isDarkMode.value = enabled
+        getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putBoolean("isDarkMode", enabled).apply()
     }
 
     fun setThemeColorIndex(index: Int) {
         _themeColorIndex.value = index
+        getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putInt("themeColorIndex", index).apply()
     }
 
     fun setMonthlyLimit(limit: Double) {
         _monthlyLimit.value = limit
+        getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putFloat("monthlyLimit", limit.toFloat()).apply()
     }
 
     fun login(name: String) {
         _userName.value = name
         _isLoggedIn.value = true
+        getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putString("userName", name).putBoolean("isLoggedIn", true).apply()
     }
 
     fun logout() {
         _userName.value = null
         _isLoggedIn.value = false
+        getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().remove("userName").putBoolean("isLoggedIn", false).apply()
     }
 
     init {
+        val prefs = application.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        _isDarkMode.value = prefs.getBoolean("isDarkMode", true)
+        _themeColorIndex.value = prefs.getInt("themeColorIndex", 0)
+        _monthlyLimit.value = prefs.getFloat("monthlyLimit", 20000.0f).toDouble()
+        _userName.value = prefs.getString("userName", null)
+        _isLoggedIn.value = prefs.getBoolean("isLoggedIn", false)
+
         val expenseDao = AppDatabase.getDatabase(application).expenseDao()
         repository = ExpenseRepository(expenseDao)
         allExpenses = repository.allExpenses.stateIn(
