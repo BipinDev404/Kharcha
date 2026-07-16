@@ -1,0 +1,14 @@
+--- app/src/main/java/com/example/Screens.kt
++++ app/src/main/java/com/example/Screens.kt
+@@ -1150,7 +1150,10 @@
+                                         val writer = outputStream.bufferedWriter()
+                                         writer.write("id,amount,category,merchant,paymentMethod,date,notes\n")
+                                         expenses.forEach { exp ->
+-                                            writer.write("${exp.id},${exp.amount},${exp.category},${exp.merchant},${exp.paymentMethod},${exp.date},\"${exp.notes.replace("\"", "\"\"")}\"\n")
++                                            val safeMerchant = exp.merchant.replace(",", " ")
++                                            val safeCategory = exp.category.replace(",", " ")
++                                            val safePayment = exp.paymentMethod.replace(",", " ")
++                                            writer.write("${exp.id},${exp.amount},${safeCategory},${safeMerchant},${safePayment},${exp.date},\"${exp.notes.replace("\"", "\"\"")}\"\n")
+                                         }
+                                         writer.flush()
+                                     }

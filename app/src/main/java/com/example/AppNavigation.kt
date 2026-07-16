@@ -18,11 +18,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.List
@@ -53,7 +53,7 @@ import kotlinx.serialization.Serializable
 @Serializable object AddExpense
 @Serializable object Transactions
 @Serializable object Calendar
-@Serializable object Insights
+@Serializable object Statistics
 @Serializable object SettingsScreenDestination
 
 @Composable
@@ -115,9 +115,9 @@ fun MainApp(viewModel: MainViewModel) {
                     )
                     
                     NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.route == Insights::class.qualifiedName } == true,
+                        selected = currentDestination?.hierarchy?.any { it.route == Statistics::class.qualifiedName } == true,
                         onClick = {
-                            navController.navigate(Insights) {
+                            navController.navigate(Statistics) {
                                 popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
@@ -125,11 +125,11 @@ fun MainApp(viewModel: MainViewModel) {
                         },
                         icon = {
                             Icon(
-                                if (currentDestination?.hierarchy?.any { it.route == Insights::class.qualifiedName } == true) Icons.Filled.Lightbulb else Icons.Outlined.Lightbulb,
-                                contentDescription = "Insights"
+                                if (currentDestination?.hierarchy?.any { it.route == Statistics::class.qualifiedName } == true) Icons.Filled.Analytics else Icons.Outlined.Analytics,
+                                contentDescription = "Statistics"
                             )
                         },
-                        label = { Text("Insights") },
+                        label = { Text("Statistics") },
                         colors = NavigationBarItemDefaults.colors(
                             indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         )
@@ -164,28 +164,15 @@ fun MainApp(viewModel: MainViewModel) {
                 val isPressed by interactionSource.collectIsPressedAsState()
                 val scale by animateFloatAsState(targetValue = if (isPressed) 0.9f else 1f, animationSpec = tween(150))
                 
-                if (currentDestination?.route == Insights::class.qualifiedName) {
-                    FloatingActionButton(
-                        onClick = { viewModel.toggleChat() },
-                        interactionSource = interactionSource,
-                        modifier = Modifier.scale(scale),
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Icon(Icons.Filled.Chat, contentDescription = "Chat", modifier = Modifier.size(32.dp))
-                    }
-                } else {
-                    FloatingActionButton(
-                        onClick = { navController.navigate(AddExpense) },
-                        interactionSource = interactionSource,
-                        modifier = Modifier.scale(scale),
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Add Expense", modifier = Modifier.size(32.dp))
-                    }
+                FloatingActionButton(
+                    onClick = { navController.navigate(AddExpense) },
+                    interactionSource = interactionSource,
+                    modifier = Modifier.scale(scale),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add Expense", modifier = Modifier.size(32.dp))
                 }
             }
         },
@@ -212,7 +199,7 @@ fun MainApp(viewModel: MainViewModel) {
             composable<Dashboard> { DashboardScreen(viewModel, onNavigateToCalendar = { navController.navigate(Calendar) }) }
             composable<Transactions> { TransactionsScreen(viewModel) }
             composable<Calendar> { CalendarScreen(viewModel) }
-            composable<Insights> { InsightsScreen(viewModel) }
+            composable<Statistics> { StatisticsScreen(viewModel) }
             composable<SettingsScreenDestination> { SettingsScreen(viewModel) }
             composable<AddExpense> { 
                 AddExpenseScreen(viewModel, onBack = { navController.popBackStack() }) 

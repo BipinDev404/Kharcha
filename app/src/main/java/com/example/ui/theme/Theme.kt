@@ -41,7 +41,7 @@ fun MyApplicationTheme(
           primary = primaryColor,
           background = LightBackground,
           surface = LightSurface,
-          onPrimary = TextPrimaryLight,
+          onPrimary = androidx.compose.ui.graphics.Color.White,
           onBackground = TextPrimaryLight,
           onSurface = TextPrimaryLight,
           error = ExpenseRed

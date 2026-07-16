@@ -1,0 +1,55 @@
+--- app/src/main/java/com/example/Screens.kt
++++ app/src/main/java/com/example/Screens.kt
+@@ -1148,13 +1148,22 @@
+                                     context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                                         val writer = outputStream.bufferedWriter()
+-                                        writer.write("id,amount,category,merchant,paymentMethod,date,notes\n")
++                                        writer.write("Transaction ID,Type,Amount,Category,Merchant,Payment Method,Date,Time,Timestamp_MS,Notes\n")
+                                         expenses.forEach { exp ->
+-                                            val safeMerchant = exp.merchant.replace(",", " ")
+-                                            val safeCategory = exp.category.replace(",", " ")
+-                                            val safePayment = exp.paymentMethod.replace(",", " ")
+-                                            writer.write("${exp.id},${exp.amount},${safeCategory},${safeMerchant},${safePayment},${exp.date},\"${exp.notes.replace("\"", "\"\"")}\"\n")
++                                            val type = when (exp.category) {
++                                                "Received", "Borrowed" -> "Income"
++                                                "Lent" -> "Lent"
++                                                else -> "Expense"
++                                            }
++                                            val safeMerchant = exp.merchant.replace(",", " ").replace("\"", "")
++                                            val safeCategory = exp.category.replace(",", " ").replace("\"", "")
++                                            val safePayment = exp.paymentMethod.replace(",", " ").replace("\"", "")
++                                            
++                                            val cal = java.util.Calendar.getInstance().apply { timeInMillis = exp.date }
++                                            val dateStr = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault()).format(cal.time)
++                                            val timeStr = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(cal.time)
++                                            
++                                            writer.write("${exp.id},${type},${exp.amount},${safeCategory},${safeMerchant},${safePayment},${dateStr},${timeStr},${exp.date},\"${exp.notes.replace("\"", "\"\"")}\"\n")
+                                         }
+                                         writer.flush()
+                                     }
+@@ -1176,14 +1185,18 @@
+                                         if (lines.isNotEmpty()) {
+                                             lines.drop(1).forEach { line ->
+-                                                val parts = line.split(",")
+-                                                if (parts.size >= 6) {
+-                                                    val amount = parts[1].toDoubleOrNull() ?: 0.0
+-                                                    val category = parts[2]
+-                                                    val merchant = parts[3]
+-                                                    val paymentMethod = parts[4]
+-                                                    val date = parts[5].toLongOrNull() ?: 0L
+-                                                    val notes = if (parts.size >= 7) parts.subList(6, parts.size).joinToString(",").replace("^\"|\"$".toRegex(), "").replace("\"\"", "\"") else ""
++                                                val parts = line.split(",", limit = 10)
++                                                if (parts.size >= 9) {
++                                                    val amount = parts[2].toDoubleOrNull() ?: 0.0
++                                                    val category = parts[3]
++                                                    val merchant = parts[4]
++                                                    val paymentMethod = parts[5]
++                                                    val date = parts[8].toLongOrNull() ?: 0L
++                                                    val notes = if (parts.size >= 10) {
++                                                        val rawNotes = parts[9]
++                                                        if (rawNotes.startsWith("\"") && rawNotes.endsWith("\"")) {
++                                                            rawNotes.substring(1, rawNotes.length - 1).replace("\"\"", "\"")
++                                                        } else rawNotes
++                                                    } else ""
+                                                     
+                                                     viewModel.addManualExpense(com.example.data.Expense(amount = amount, category = category, merchant = merchant, paymentMethod = paymentMethod, date = date, notes = notes))

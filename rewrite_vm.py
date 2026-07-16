@@ -1,4 +1,4 @@
-package com.example
+new_vm = """package com.example
 
 import android.app.Application
 import android.content.Context
@@ -127,3 +127,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
+"""
+
+with open("app/src/main/java/com/example/MainViewModel.kt", "w") as f:
+    f.write(new_vm)
