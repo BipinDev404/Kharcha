@@ -3,8 +3,9 @@
     android:minWidth="110dp"
     android:minHeight="110dp"
     android:updatePeriodMillis="86400000"
-    android:initialLayout="@layout/glance_default_loading_layout"
+    android:initialLayout="@layout/widget_initial_layout"
     android:widgetCategory="home_screen"
     android:previewImage="@drawable/ic_launcher_foreground"
     android:targetCellWidth="2"
-    android:targetCellHeight="2" />
+    android:targetCellHeight="2"
+    android:previewLayout="@layout/widget_initial_layout" />

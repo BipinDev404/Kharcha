@@ -1,4 +1,9 @@
-package com.example.widgets
+import os
+
+widgets_dir = "app/src/main/java/com/example/widgets"
+
+with open(f"{widgets_dir}/SummaryWidget.kt", "w") as f:
+    f.write("""package com.example.widgets
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
@@ -33,40 +38,43 @@ import com.example.R
 import com.example.data.AppDatabase
 import kotlinx.coroutines.flow.first
 
-class LimitWidget : GlanceAppWidget() {
+class SummaryWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val database = AppDatabase.getDatabase(context)
         val expenses = database.expenseDao().getAllExpenses().first()
         val spent = expenses.filter { it.category != "Received" && it.category != "Borrowed" && it.category != "Lent" }.sumOf { it.amount }
-        val limit = 5000.0 // Hardcoded for widget demo
-        
-        val statusColor = if (spent > limit) Color(0xFFEF5350) else Color(0xFF66BB6A)
         
         provideContent {
             Box(
-                modifier = GlanceModifier.fillMaxSize().background(ImageProvider(R.drawable.widget_bg_dark)).padding(16.dp).clickable(actionStartActivity<MainActivity>()),
+                modifier = GlanceModifier.fillMaxSize()
+                    .background(ImageProvider(R.drawable.widget_bg_dark))
+                    .padding(16.dp)
+                    .clickable(actionStartActivity<MainActivity>()),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Column(modifier = GlanceModifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            provider = ImageProvider(R.drawable.ic_limit),
-                            contentDescription = "Limit",
+                            provider = ImageProvider(R.drawable.ic_wallet),
+                            contentDescription = "Wallet",
                             modifier = GlanceModifier.size(24.dp)
                         )
                         Spacer(modifier = GlanceModifier.width(8.dp))
-                        Text("Monthly Limit", style = TextStyle(color = androidx.glance.unit.ColorProvider(Color.Gray), fontSize = 14.sp))
+                        Text("Monthly Summary", style = TextStyle(color = androidx.glance.unit.ColorProvider(Color(0xFFB0BEC5)), fontSize = 14.sp))
                     }
                     Spacer(modifier = GlanceModifier.height(12.dp))
-                    Text("Spent: ₹${spent}", style = TextStyle(color = androidx.glance.unit.ColorProvider(Color.White), fontSize = 16.sp, fontWeight = FontWeight.Bold))
+                    Text("Total Spent", style = TextStyle(color = androidx.glance.unit.ColorProvider(Color.Gray), fontSize = 12.sp))
                     Spacer(modifier = GlanceModifier.height(4.dp))
-                    Text("Limit: ₹${limit}", style = TextStyle(color = androidx.glance.unit.ColorProvider(statusColor), fontWeight = FontWeight.Medium, fontSize = 14.sp))
+                    Text("₹${spent}", style = TextStyle(color = androidx.glance.unit.ColorProvider(Color.White), fontWeight = FontWeight.Bold, fontSize = 28.sp))
                 }
             }
         }
     }
 }
 
-class LimitWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = LimitWidget()
+class SummaryWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = SummaryWidget()
 }
+""")
+
+print("SummaryWidget fixed")
