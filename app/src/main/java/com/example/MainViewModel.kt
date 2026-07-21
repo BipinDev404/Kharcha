@@ -34,6 +34,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _monthlyLimit = MutableStateFlow(20000.0)
     val monthlyLimit: StateFlow<Double> = _monthlyLimit
 
+    private val _isAppLockEnabled = MutableStateFlow(false)
+    val isAppLockEnabled: StateFlow<Boolean> = _isAppLockEnabled
+
+    private val _isAppUnlocked = MutableStateFlow(false)
+    val isAppUnlocked: StateFlow<Boolean> = _isAppUnlocked
+
     private val _score = MutableStateFlow(100)
     val score: StateFlow<Int> = _score
 
@@ -74,6 +80,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putFloat("monthlyLimit", limit.toFloat()).apply()
     }
 
+    fun setAppLockEnabled(enabled: Boolean) {
+        _isAppLockEnabled.value = enabled
+        getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putBoolean("isAppLockEnabled", enabled).apply()
+    }
+
+    fun unlockApp() {
+        _isAppUnlocked.value = true
+    }
+
     fun login(name: String) {
         _userName.value = name
         _isLoggedIn.value = true
@@ -93,6 +108,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _monthlyLimit.value = prefs.getFloat("monthlyLimit", 20000.0f).toDouble()
         _userName.value = prefs.getString("userName", null)
         _isLoggedIn.value = prefs.getBoolean("isLoggedIn", false)
+        val isLockEnabled = prefs.getBoolean("isAppLockEnabled", false)
+        _isAppLockEnabled.value = isLockEnabled
+        _isAppUnlocked.value = !isLockEnabled
 
         val expenseDao = AppDatabase.getDatabase(application).expenseDao()
         repository = ExpenseRepository(expenseDao)

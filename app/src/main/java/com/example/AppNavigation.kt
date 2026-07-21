@@ -1,6 +1,7 @@
 package com.example
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -58,6 +59,14 @@ import kotlinx.serialization.Serializable
 
 @Composable
 fun MainApp(viewModel: MainViewModel) {
+    val isAppLockEnabled by viewModel.isAppLockEnabled.collectAsStateWithLifecycle()
+    val isAppUnlocked by viewModel.isAppUnlocked.collectAsStateWithLifecycle()
+    
+    if (isAppLockEnabled && !isAppUnlocked) {
+        AppLockScreen(viewModel)
+        return
+    }
+
     val navController = rememberNavController()
     
     val navBackStackEntry by navController.currentBackStackEntryAsState()

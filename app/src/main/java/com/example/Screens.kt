@@ -28,6 +28,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -660,111 +662,6 @@ fun ManualExpenseEntry(viewModel: MainViewModel, onBack: () -> Unit) {
     }
 }
 
-@Composable
-fun StatisticsScreen(viewModel: MainViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-    ) {
-        Text("Statistics", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        val expenses = viewModel.allExpenses.collectAsStateWithLifecycle().value
-        
-        if (expenses.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No transactions to analyze.", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-            }
-        } else {
-            val totalSpent = expenses.filter { it.category != "Lent" && it.category != "Received" && it.category != "Borrowed" }.sumOf { it.amount }
-            val totalLent = expenses.filter { it.category == "Lent" }.sumOf { it.amount }
-            val totalReceived = expenses.filter { it.category == "Received" || it.category == "Borrowed" }.sumOf { it.amount }
-            
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item {
-                    Text("Overview", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Spent", style = MaterialTheme.typography.labelSmall)
-                                Text("₹${String.format(Locale.US, "%.0f", totalSpent)}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                        Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC107).copy(alpha = 0.2f))) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Lent", style = MaterialTheme.typography.labelSmall)
-                                Text("₹${String.format(Locale.US, "%.0f", totalLent)}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                        Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.2f))) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Received", style = MaterialTheme.typography.labelSmall)
-                                Text("₹${String.format(Locale.US, "%.0f", totalReceived)}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-                
-                item {
-                    Text("Monthly Breakdown", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    val monthlyGroups = expenses.groupBy { 
-                        val cal = java.util.Calendar.getInstance()
-                        cal.timeInMillis = it.date
-                        SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(cal.time)
-                    }.toList().sortedByDescending { it.second.first().date }.take(6)
-                    
-                    monthlyGroups.forEach { (month, monthExpenses) ->
-                        val mSpent = monthExpenses.filter { it.category != "Lent" && it.category != "Received" && it.category != "Borrowed" }.sumOf { it.amount }
-                        val mLent = monthExpenses.filter { it.category == "Lent" }.sumOf { it.amount }
-                        val mReceived = monthExpenses.filter { it.category == "Received" || it.category == "Borrowed" }.sumOf { it.amount }
-                        
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                        ) {
-                            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Text(month, fontWeight = FontWeight.Bold)
-                                Column(horizontalAlignment = Alignment.End) {
-                                    if (mSpent > 0) Text("Spent: ₹${String.format(Locale.US, "%.0f", mSpent)}", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
-                                    if (mLent > 0) Text("Lent: ₹${String.format(Locale.US, "%.0f", mLent)}", color = Color(0xFFFFA000), style = MaterialTheme.typography.labelSmall)
-                                    if (mReceived > 0) Text("Recv: ₹${String.format(Locale.US, "%.0f", mReceived)}", color = Color(0xFF388E3C), style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-                
-                item {
-                    Text("Top Categories (Spend)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    val catGroups = expenses
-                        .filter { it.category != "Lent" && it.category != "Received" && it.category != "Borrowed" }
-                        .groupBy { it.category }
-                        .mapValues { it.value.sumOf { exp -> exp.amount } }
-                        .toList()
-                        .sortedByDescending { it.second }
-                        
-                    catGroups.forEach { (cat, amt) ->
-                        val ratio = if (totalSpent > 0) (amt / totalSpent).toFloat() else 0f
-                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(cat, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                            Box(modifier = Modifier.weight(2f).height(8.dp).background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)) {
-                                Box(modifier = Modifier.fillMaxWidth(ratio).fillMaxHeight().background(MaterialTheme.colorScheme.primary, CircleShape))
-                            }
-                            Text("₹${String.format(Locale.US, "%.0f", amt)}", modifier = Modifier.weight(1f), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(80.dp))
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun ExpenseItem(expense: Expense, onEdit: (Expense) -> Unit, onDelete: (Expense) -> Unit) {
@@ -1041,6 +938,19 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     )
                 }
 
+                val isAppLockEnabled by viewModel.isAppLockEnabled.collectAsStateWithLifecycle()
+                SettingsRow(
+                    icon = Icons.Filled.Lock,
+                    title = "App Lock",
+                    subtitle = "Require biometric/password to open app",
+                    trailing = {
+                        Switch(
+                            checked = isAppLockEnabled,
+                            onCheckedChange = { viewModel.setAppLockEnabled(it) }
+                        )
+                    }
+                )
+
                 SettingsRow(
                     icon = Icons.Filled.Notifications,
                     title = "Notifications",
@@ -1177,6 +1087,31 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 
                 Text("More About", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(16.dp))
+
+                SettingsRow(
+                    icon = Icons.Filled.Share,
+                    title = "Share App",
+                    subtitle = "Share the app's APK with friends",
+                    onClick = { ShareUtils.shareAppApk(context) }
+                )
+
+                SettingsRow(
+                    icon = Icons.Filled.Email,
+                    title = "Feedback / Issue",
+                    subtitle = "Share your experience or advice",
+                    onClick = { 
+                        val emailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
+                            data = android.net.Uri.parse("mailto:")
+                            putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf("BIPINFORDEV@GMAIL.COM"))
+                            putExtra(android.content.Intent.EXTRA_SUBJECT, "Kharcha App Feedback")
+                        }
+                        try {
+                            context.startActivity(android.content.Intent.createChooser(emailIntent, "Send Email"))
+                        } catch (e: Exception) {
+                            android.widget.Toast.makeText(context, "No email client found", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
 
                 SettingsRow(
                     icon = Icons.Filled.AutoAwesome,
@@ -1467,16 +1402,12 @@ fun SettingsRow(
 @Composable
 fun CalendarScreen(viewModel: MainViewModel) {
     val expenses by viewModel.allExpenses.collectAsStateWithLifecycle()
-    val datePickerState = androidx.compose.material3.rememberDatePickerState(
-        initialSelectedDateMillis = System.currentTimeMillis()
-    )
-    
+    var selectedDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
     var expenseToEdit by remember { mutableStateOf<com.example.data.Expense?>(null) }
     
-    val selectedDateExpenses = remember(expenses, datePickerState.selectedDateMillis) {
-        val selectedMillis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+    val selectedDateExpenses = remember(expenses, selectedDateMillis) {
         val calendar = java.util.Calendar.getInstance()
-        calendar.timeInMillis = selectedMillis
+        calendar.timeInMillis = selectedDateMillis
         calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
         calendar.set(java.util.Calendar.MINUTE, 0)
         calendar.set(java.util.Calendar.SECOND, 0)
@@ -1498,12 +1429,10 @@ fun CalendarScreen(viewModel: MainViewModel) {
     ) {
         Text("Calendar", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 8.dp, bottom = 16.dp))
         
-        androidx.compose.material3.DatePicker(
-            state = datePickerState,
-            modifier = Modifier.fillMaxWidth().height(400.dp),
-            showModeToggle = false,
-            title = null,
-            headline = null
+        CustomCalendarView(
+            selectedDateMillis = selectedDateMillis,
+            onDateSelected = { selectedDateMillis = it },
+            expenses = expenses
         )
         
         Spacer(modifier = Modifier.height(16.dp))
