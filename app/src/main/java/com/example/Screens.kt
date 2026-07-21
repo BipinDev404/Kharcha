@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
@@ -146,7 +148,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToCalendar: () -> Unit =
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        androidx.compose.material.icons.Icons.Filled.Warning,
+                        Icons.Filled.Warning,
                         contentDescription = "Warning",
                         tint = MaterialTheme.colorScheme.error
                     )
@@ -696,7 +698,26 @@ fun ExpenseItem(expense: Expense, onEdit: (Expense) -> Unit, onDelete: (Expense)
                             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(expense.category.take(1).uppercase(), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                        val icon = when (expense.category.lowercase()) {
+                            "food" -> Icons.Filled.Restaurant
+                            "travel" -> Icons.Filled.Flight
+                            "fuel" -> Icons.Filled.LocalGasStation
+                            "shopping" -> Icons.Filled.ShoppingCart
+                            "bills" -> Icons.Filled.Receipt
+                            "education" -> Icons.Filled.School
+                            "medical" -> Icons.Filled.LocalHospital
+                            "rent", "house" -> Icons.Filled.Home
+                            "salary" -> Icons.Filled.AttachMoney
+                            "investment" -> Icons.Filled.TrendingUp
+                            "recharge" -> Icons.Filled.PhoneAndroid
+                            "subscription" -> Icons.Filled.Subscriptions
+                            "electronics" -> Icons.Filled.Computer
+                            "entertainment" -> Icons.Filled.Movie
+                            "lent" -> Icons.AutoMirrored.Filled.ArrowForward
+                            "received", "borrowed" -> Icons.AutoMirrored.Filled.ArrowBack
+                            else -> Icons.Filled.AttachMoney
+                        }
+                        Icon(icon, contentDescription = expense.category, tint = MaterialTheme.colorScheme.primary)
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {

@@ -1,6 +1,6 @@
 {
   "name": "Kharcha",
-  "description": "An AI-powered app to effortlessly track your expenses using natural language.",
+  "description": "An app to effortlessly track your expenses.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
